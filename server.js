@@ -17,6 +17,25 @@ app.get("/api/users", jsonParser, (req, res) => {
   res.send(users);
 });
 
+app.delete("/api/users/:userID", jsonParser, (req, res) => {
+  const userID = Number(req.params.userID);
+  const userToBeRemoved = users.findIndex(user => user.id === userID);
+  if(userToBeRemoved === -1){
+    return res.sendStatus(400);
+  }
+  users.splice(userToBeRemoved, 1);
+  res.sendStatus(200);
+});
+
+app.get("/api/users/:userID", jsonParser, (req, res) => {
+  const userID = Number(req.params.userID);
+  const userToBeSent = users.findIndex(user => user.id === userID);
+  if(userToBeSent === -1){
+    return res.sendStatus(400);
+  }
+  res.send(users[userToBeSent]);
+});
+
 app.post("/api/users", jsonParser, (req, res) => {
   users.push({ ...req.body, id: Math.floor(Math.random() * 1000000000) });
   res.sendStatus(200);
