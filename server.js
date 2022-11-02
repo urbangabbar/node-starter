@@ -9,6 +9,11 @@ const users = [];
 // Using express import create an instance of app
 const app = express();
 
+// used to serve static file
+// index.html is default home page
+// to respond to requests for static files
+app.use(express.static('ui'))
+
 var jsonParser = bodyParser.json();
 
 // app provide multiple methods for HTTP verbs we can add URL and a handler.
@@ -19,8 +24,8 @@ app.get("/api/users", jsonParser, (req, res) => {
 
 app.delete("/api/users/:userID", jsonParser, (req, res) => {
   const userID = Number(req.params.userID);
-  const userToBeRemoved = users.findIndex(user => user.id === userID);
-  if(userToBeRemoved === -1){
+  const userToBeRemoved = users.findIndex((user) => user.id === userID);
+  if (userToBeRemoved === -1) {
     return res.sendStatus(400);
   }
   users.splice(userToBeRemoved, 1);
@@ -29,8 +34,8 @@ app.delete("/api/users/:userID", jsonParser, (req, res) => {
 
 app.get("/api/users/:userID", jsonParser, (req, res) => {
   const userID = Number(req.params.userID);
-  const userToBeSent = users.findIndex(user => user.id === userID);
-  if(userToBeSent === -1){
+  const userToBeSent = users.findIndex((user) => user.id === userID);
+  if (userToBeSent === -1) {
     return res.sendStatus(400);
   }
   res.send(users[userToBeSent]);
