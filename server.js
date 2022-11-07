@@ -1,10 +1,16 @@
 // This is how we import packages in JS file
 const express = require("express");
 const bodyParser = require("body-parser");
+const mongoose = require("mongoose");
 
 const port = 3000;
+const databsePromise = mongoose.connect(
+  "mongodb+srv://abhinav:abcd1234@cluster0.rjdagq2.mongodb.net/?retryWrites=true&w=majority"
+);
 
 const users = [];
+
+const Cat = mongoose.model("Cat", { name: String });
 
 // Using express import create an instance of app
 const app = express();
@@ -12,7 +18,7 @@ const app = express();
 // used to serve static file
 // index.html is default home page
 // to respond to requests for static files
-app.use(express.static('ui'))
+app.use(express.static("ui"));
 
 var jsonParser = bodyParser.json();
 
@@ -46,10 +52,21 @@ app.post("/api/users", jsonParser, (req, res) => {
   res.sendStatus(200);
 });
 
+app.post("/api/cat", jsonParser, async (req, res) => {
+  const catObject = req.body;
+  const kitty = new Cat(catObject);
+  await kitty.save();
+  res.send(kitty);
+});
+
 // Listen help you start listening to a particular port.
 // PORT is a channel available on machience
 // 8081;3000;8080;4000;
 // ipAdress:8081 / 8080 -> Domain (Proxy) http:google
-app.listen(port, () => {
-  console.log(`User app is listening on port ${port}`);
-});
+databsePromise
+  .then(() =>
+    app.listen(port, () => {
+      console.log(`User app is listening on port ${port}`);
+    })
+  )
+  .catch((err) => console.log("failed to connect db", err));
