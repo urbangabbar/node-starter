@@ -2,15 +2,14 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
+const User = require("./models/users");
+const validateObjectId = require("./object-id-validator")
 
 const port = 3000;
 const databsePromise = mongoose.connect(
-  "mongodb+srv://abhinav:abcd1234@cluster0.rjdagq2.mongodb.net/?retryWrites=true&w=majority"
+  "mongodb+srv://abhinav:abcd1234@cluster0.rjdagq2.mongodb.net/todo?retryWrites=true&w=majority"
 );
 
-const users = [];
-
-const Cat = mongoose.model("Cat", { name: String });
 
 // Using express import create an instance of app
 const app = express();
@@ -24,11 +23,13 @@ var jsonParser = bodyParser.json();
 
 // app provide multiple methods for HTTP verbs we can add URL and a handler.
 // first param is the URL we want to accept request on, Next param is a callback function to handle request.
-app.get("/api/users", jsonParser, (req, res) => {
+app.get("/api/users", jsonParser,async (req, res) => {
+  const users = await User.find({});
   res.send(users);
 });
 
 app.delete("/api/users/:userID", jsonParser, (req, res) => {
+  //User.deleteOne({_id: ""})
   const userID = Number(req.params.userID);
   const userToBeRemoved = users.findIndex((user) => user.id === userID);
   if (userToBeRemoved === -1) {
@@ -38,26 +39,28 @@ app.delete("/api/users/:userID", jsonParser, (req, res) => {
   res.sendStatus(200);
 });
 
-app.get("/api/users/:userID", jsonParser, (req, res) => {
-  const userID = Number(req.params.userID);
-  const userToBeSent = users.findIndex((user) => user.id === userID);
-  if (userToBeSent === -1) {
-    return res.sendStatus(400);
+// would update user -> for example by postman update username
+// app.put
+
+app.get("/api/users/:userID", jsonParser,async (req, res) => {
+  const userID = req.params.userID;
+  if(!validateObjectId(userID)){
+    res.status(400).send("Please send valid object id");
   }
-  res.send(users[userToBeSent]);
+  const user = await User.findById(userID);
+
+  if (!user) {
+    return res.status(400).send("user not found");
+  }
+  res.send(user);
 });
 
-app.post("/api/users", jsonParser, (req, res) => {
-  users.push({ ...req.body, id: Math.floor(Math.random() * 1000000000) });
-  res.sendStatus(200);
+app.post("/api/users", jsonParser,async (req, res) => {
+  const newUser = new User(req.body);
+  await newUser.save()
+  res.send(newUser);
 });
 
-app.post("/api/cat", jsonParser, async (req, res) => {
-  const catObject = req.body;
-  const kitty = new Cat(catObject);
-  await kitty.save();
-  res.send(kitty);
-});
 
 // Listen help you start listening to a particular port.
 // PORT is a channel available on machience
