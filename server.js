@@ -28,16 +28,30 @@ app.get("/api/users", jsonParser,async (req, res) => {
   res.send(users);
 });
 
-app.delete("/api/users/:userID", jsonParser, (req, res) => {
-  //User.deleteOne({_id: ""})
-  const userID = Number(req.params.userID);
-  const userToBeRemoved = users.findIndex((user) => user.id === userID);
-  if (userToBeRemoved === -1) {
-    return res.sendStatus(400);
+app.delete("/api/users/:userID", jsonParser,async (req, res) => {
+  const userID = req.params.userID;
+  if(!validateObjectId(userID)){
+    res.status(400).send("Please send valid object id");
   }
-  users.splice(userToBeRemoved, 1);
+  const result = await User.findByIdAndDelete(userID);
+  if(!result){
+    res.status(404).send({"error": "User not found"})
+  }
   res.sendStatus(200);
 });
+
+// Used for updating resources
+app.put("/api/users/:userID",jsonParser,async (req, res) => {
+  const userID = req.params.userID;
+  if(!validateObjectId(userID)){
+    return res.status(400).send("Please send valid object id");
+  }
+  const result = await User.findByIdAndUpdate(userID, req.body);
+  if(!result){
+    return res.status(404).send({"error": "User not found"})
+  }
+  return res.sendStatus(200);
+} )
 
 // would update user -> for example by postman update username
 // app.put

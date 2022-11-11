@@ -4,7 +4,7 @@
   "description": "demo project",
   "main": "server.js",
   "scripts": {
-    "start": "nodemon server.js"
+    "start-server": "nodemon server.js"
   },
   "author": "abhinav",
   "license": "ISC",
