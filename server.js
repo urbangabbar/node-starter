@@ -7,7 +7,7 @@ const validateObjectId = require("./object-id-validator")
 
 const port = 3000;
 const databsePromise = mongoose.connect(
-  "mongodb+srv://abhinav:abcd1234@cluster0.rjdagq2.mongodb.net/todo?retryWrites=true&w=majority"
+  ""
 );
 
 
